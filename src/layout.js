@@ -18,9 +18,100 @@
  */
 
 import FtObject from './ftobject.js';
-import { Rectangle } from './utils.js';
+import FtSettings from './settings.js';
+import { Rectangle, getDisplayClientAreaRect } from './utils.js';
 
 // #region ZoneLayoutManager
+
+/*
+ * Signals:
+ *   changed::active-layout
+ *   layout-added
+ *   layout-removed
+ *
+ */
+export default class ZoneLayoutManager extends FtObject {
+    constructor(display) {
+        super();
+        this._displayRect = getDisplayClientAreaRect(display);
+        this._activeLayout = null;
+        this._layouts = [];
+    }
+
+    getActiveLayout() {
+        return this._activeLayout;
+    }
+
+    setActiveLayout(layout) {
+        if (this._activeLayout === layout) {
+            return;
+        }
+
+        this._activeLayout = layout;
+        this.emit('changed::active-layout', this);
+    }
+
+    getLayouts() {
+        return this._layouts;
+    }
+
+    loadLayouts() {
+        log('Loading zone layouts');
+        this._layouts = [];
+        this._activeLayout = null;
+        let zoneSnap = FtSettings.getZoneSnap();
+        let jsonStr = FtSettings.getLayouts();
+        if (jsonStr) {
+            let json = JSON.parse(jsonStr);
+            for (let layoutName in json['layouts']) {
+                let layout = new ZoneLayout(this._displayRect, zoneSnap, layoutName, json['layouts'][layoutName]);
+                this.addLayout(layout);
+                log(`Added layout ${layout.getName()}`);
+            }
+        }
+
+        let defaultLayout = this.findLayout(FtSettings.getDefaultLayout());
+        if (defaultLayout != null) {
+            this._activeLayout = defaultLayout;
+        } else if (defaultLayout == null && this._layouts.length > 0) {
+            this.activeLayout = this._layouts[0];
+        }
+    }
+
+    addLayout(layout) {
+        this._layouts.push(layout);
+        this.emit('layout-added', this, layout);
+    }
+
+    removeLayout(layout) {
+        for (let i in this._layouts) {
+            if (this._layouts[i] === layout) {
+                this._layouts.splice(parseInt(i), 1);
+                this.emit('layout-removed', this, layout);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    findLayout(name) {
+        for (let layout of this._layouts) {
+            if (layout.name === name) {
+                return layout;
+            }
+        }
+
+        return null;
+    }
+
+    destroy() {
+        this._layouts.forEach((l) => l.destroy());
+        this._layouts = [];
+        this._activeLayout = null;
+        super.destroy();
+    }
+}
 
 // #endregion
 
@@ -67,7 +158,7 @@ class ZoneLayout extends FtObject {
             let zoneVerts = json['zones'][zoneName];
             this._zones.push(
                 new Zone(
-                    zone,
+                    zoneName,
                     Rectangle.fromLTRB(
                         zoneVerts[0] * displayRect.getWidth() + displayRect.getX(),
                         zoneVerts[1] * displayRect.getHeight() + displayRect.getY(),

@@ -17,8 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import FtObject from './ftobject.js';
 import Meta from 'gi://Meta';
+import FtObject from './ftobject.js';
+import ZoneLayoutManager from './layout.js';
 
 // #region DisplayObserver
 
@@ -27,18 +28,25 @@ export class DisplayObserver extends FtObject {
         super();
         this._display = display;
         this._windowOberservers = [];
+        this._layoutManager = new ZoneLayoutManager(display);
         this._initObserver();
     }
 
     _initObserver() {
         this._handleWindowCreated = this._handleWindowCreated.bind(this);
         this._windowCreatedHandler = this._display.connect('window-created', this._handleWindowCreated);
+        this._handleObserverWindowDestroyed = this._handleObserverWindowDestroyed.bind(this);
+        this._handleObserverWindowDrag = this._handleObserverWindowDrag.bind(this);
+
+        this._layoutManager.loadLayouts();
     }
 
     destroy() {
         this._windowOberservers.forEach((o) => this._removeWindowObserver(o));
         this._display.disconnect(this._windowCreatedHandler);
         this._display = null;
+        this._layoutManager.destroy();
+        this._layoutManager = null;
         super.destroy();
     }
 
@@ -66,9 +74,12 @@ export class DisplayObserver extends FtObject {
             handlerDestroy: observer.connect('window-destroyed', this._handleObserverWindowDestroyed),
             handlerDrag: observer.connect('window-drag', this._handleObserverWindowDrag),
         });
+        log(`Created window observer for window (${win.get_id()})`);
     }
 
     _removeWindowObserver(observer) {
+        log(`Try to remove window observer for window (${observer.getWindowId()})`);
+
         for (let i in this._windowOberservers) {
             let info = this._windowOberservers[i];
             if (info.windowId === observer.getWindowId()) {
@@ -76,8 +87,12 @@ export class DisplayObserver extends FtObject {
                 info.observer.disconnect(info.handlerDrag);
                 info.observer = null;
                 this._windowOberservers.splice(parseInt(i), 1);
+                log('success.');
+                return;
             }
         }
+
+        log(`No window observer found for window (${win.get_id()})`);
     }
 
     _findActorForWindowId(id) {
@@ -101,7 +116,8 @@ export class WindowObserver extends FtObject {
         super();
         this._window = window;
         this._actor = actor;
-        this._id = window.getId();
+        this._id = window.get_id();
+        this._initObserver();
     }
 
     getActor() {

@@ -18,8 +18,10 @@
  */
 
 export default class FtObject {
-    _handlers = {};
-    _handlerCount = 0;
+    constructor() {
+        this._handlers = {};
+        this._handlerCount = 0;
+    }
 
     connect(sigName, callback) {
         if (!(sigName in this._handlers)) {
