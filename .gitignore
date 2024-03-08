@@ -1,0 +1,19 @@
+# Log file
+*.log
+
+# Package Files #
+*.zip
+*.tar.gz
+*.rar
+
+#GSchema
+**/*.compiled
+
+# Node
+node_modules/
+
+# IDEs
+**/.vscode/
+**/.idea/
+**/_build/
+**/build/

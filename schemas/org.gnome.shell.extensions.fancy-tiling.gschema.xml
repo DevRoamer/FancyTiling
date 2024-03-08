@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+FancyTiling - GNOME extension
+Copyright (C) 2024  DevRoamer <d3vr0am3r@gmail.com>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+-->
+<schemalist>
+    <schema id="org.gnome.shell.extensions.fancy-tiling" path="/org/gnome/shell/extensions/fancy-tiling/">
+        <key name="overlay-color" type="(ddd)">
+            <default>(0.38,0.90,0.66)</default>
+            <summary>Zone overlay color</summary>
+        </key>
+        <key name="overlay-opacity" type="d">
+            <default>0.5</default>
+            <summary>Zone overlay opacity</summary>
+        </key>
+        <key name="animate" type="b">
+            <default>true</default>
+            <summary>Use animation to resize window</summary>
+        </key>
+        <key name="zone-snap" type="i">
+            <default>5</default>
+            <summary>Distance to merge zones</summary>
+        </key>
+        <key name="default-layout" type="s">
+            <default>'2x2'</default>
+            <summary>Default layout</summary>
+        </key>
+        <key name="layouts" type="s">
+            <default>
+                '{"layouts":{"2-1-2":{"zones":{"LeftTop":[0,0,0.3,0.5],"LeftBottom":[0,0.5,0.3,1],"Center":[0.3,0,0.7,1],"RightTop":[0.7,0,1,0.5],"RightBottom":[0.7,0.5,1,1]}},"2x2":{"zones":{"1":[0,0,0.5,0.5],"2":[0.5,0,1,0.5],"3":[0,0.5,0.5,1],"4":[0.5,0.5,1,1]}}}}'
+            </default>
+        </key>
+    </schema>
+</schemalist>
