@@ -1,7 +1,7 @@
 {
   "name": "Fancy Tiling",
   "description": "FancyZones for GNOME",
-  "version": "0.0.1-js-alpha",
+  "version": "0.0.2-js",
   "uuid": "fancy-tiling@devroamer.zen",
   "author": "DevRoamer <d3vr0am3r@gmail.com>",
   "url": "https://github.com/DevRoamer/fancy-tiling",
