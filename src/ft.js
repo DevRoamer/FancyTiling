@@ -17,20 +17,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { DisplayObserver } from "./observers.js";
+import { DisplayObserver } from './observers.js';
+import FtSettings from './settings.js';
 
 // #region FancyTiling
 
 export default class FancyTiling {
     constructor(extension) {
         this._extension = extension;
+        FtSettings.initialize(extension.getSettings('org.gnome.shell.extensions.fancy-tiling'));
         this._displayObserver = new DisplayObserver(global.display);
     }
 
-    destor() {
+    destroy() {
         this._displayObserver?.destroy();
         this._displayObserver = null;
         this._extension = null;
+        FtSettings.destroy();
     }
 }
 

@@ -1,13 +1,11 @@
 # Basic Makefile
-
-UUID = fancy-tiling@devroamer.zen
-BASE_MODULES = metadata.json extension.js prefs.js README.md stylesheet.css
+NAME = fancy-tiling
+UUID = $(NAME)@devroamer.zen
+ZIP = $(UUID).shell-extension.zip
+BASE_MODULES = metadata.json extension.js prefs.js README.md LICENSE stylesheet.css
 EXTRA_DIRECTORIES = resources src
 
-TOLOCALIZE = $(EXTRA_MODULES)
 
-
-MSGSRC = $(wildcard po/*.po)
 ifeq ($(strip $(DESTDIR)),)
 	INSTALLTYPE = local
 	INSTALLBASE = $(HOME)/.local/share/gnome-shell/extensions
@@ -30,74 +28,65 @@ else
 	FILESUFFIX =
 endif
 
-all: extension
-
 clean:
-	rm -f ./schemas/gschemas.compiled
+	rm -rf ./build
 
-extension: ./schemas/gschemas.compiled $(MSGSRC:.po=.mo)
+install: zip-file
+	gnome-extensions install -f $(ZIP)
 
-./schemas/gschemas.compiled: ./schemas/org.gnome.shell.extensions.fancy-tiling.gschema.xml
-	glib-compile-schemas ./schemas/
+enable:
+	gnome-extensions enable $(UUID)
 
-potfile: ./po/fancy-tiling.pot
+disable:
+	gnome-extensions disable $(UUID)
 
-mergepo: potfile
-	for l in $(MSGSRC); do \
-		msgmerge -U $$l ./po/fancy-tiling.pot; \
-	done;
+zip-file: build
+	cd build ; \
+	gnome-extensions pack -f \
+		--extra-source=./resource \
+		--extra-source=./metadata.json \
+		--extra-source=./stylesheet.css \
+		--extra-source=./README.md \
+		--extra-source=./LICENSE \
+		--extra-source=./src \
+		--schema=../schemas/org.gnome.shell.extensions.$(NAME).gschema.xml \
+		--podir=../po \
+		$(OUT_DIR) \
+		-o ../
+	-cd ..
+	-rm -rf ./build
 
-./po/fancy-tiling.pot: $(TOLOCALIZE)
-	mkdir -p po
-	xgettext -k_ -kN_ --from-code utf-8 -o po/fancy-tiling.pot --package-name "FancyTiling" $(TOLOCALIZE)
+pot:
+	rm -f po/LINGUAS
+	find resources/ui -iname "*.ui" -printf "%f\n" | sort | \
+		xargs xgettext --directory=resources/ui --output=po/$(UUID).pot \
+		--from-code=utf-8 --package-name=$(UUID)
 
-./po/%.mo: ./po/%.po
-	msgfmt -c $< -o $@
+	for l in $$(ls po/*.po); do \
+		basename $$l .po >> po/LINGUAS; \
+	done
 
-install: install-local
+	cd po && \
+	for lang in $$(cat LINGUAS); do \
+    	mv $${lang}.po $${lang}.po.old; \
+    	msginit --no-translator --locale=$$lang --input $(UUID).pot -o $${lang}.po.new; \
+    	msgmerge -N $${lang}.po.old $${lang}.po.new > $${lang}.po; \
+    	rm $${lang}.po.old $${lang}.po.new; \
+	done
 
-install-local: _build
-	rm -rf $(INSTALLBASE)/$(INSTALLNAME)
-	mkdir -p $(INSTALLBASE)/$(INSTALLNAME)
-	cp -r ./_build/* $(INSTALLBASE)/$(INSTALLNAME)/
-ifeq ($(INSTALLTYPE),system)
-	# system-wide settings and locale files
-	rm -r $(INSTALLBASE)/$(INSTALLNAME)/schemas $(INSTALLBASE)/$(INSTALLNAME)/locale
-	mkdir -p $(SHARE_PREFIX)/glib-2.0/schemas $(SHARE_PREFIX)/locale
-	cp -r ./schemas/*gschema.* $(SHARE_PREFIX)/glib-2.0/schemas
-	cp -r ./_build/locale/* $(SHARE_PREFIX)/locale
-endif
-	-rm -fR _build
-	echo done
+build:
+	-rm -fR ./build
+	mkdir -p build
+	cp $(BASE_MODULES) $(EXTRA_MODULES) build
+	cp -r $(EXTRA_DIRECTORIES) build
 
-zip-file: _build
-	cd _build ; \
-	zip -qr "$(UUID)$(FILESUFFIX).zip" .
-	mv _build/$(UUID)$(FILESUFFIX).zip ./
-	-rm -fR _build
-
-_build: all
-	-rm -fR ./_build
-	mkdir -p _build
-	cp $(BASE_MODULES) $(EXTRA_MODULES) _build
-	cp -r $(EXTRA_DIRECTORIES) _build
-	mkdir -p _build/schemas
-	cp schemas/*.xml _build/schemas/
-	cp schemas/gschemas.compiled _build/schemas/
-	mkdir -p _build/locale
-	for l in $(MSGSRC:.po=.mo) ; do \
-		lf=_build/locale/`basename $$l .mo`; \
-		mkdir -p $$lf; \
-		mkdir -p $$lf/LC_MESSAGES; \
-		cp $$l $$lf/LC_MESSAGES/arcmenu.mo; \
-	done;
 ifneq ($(COMMIT),)
-	sed -i '/"version": .*,/a "commit": "$(COMMIT)",'  _build/metadata.json;
+	sed -i '/"version": .*,/a "commit": "$(COMMIT)",'  build/metadata.json;
 else ifneq ($(VERSION),)
-	sed -i 's/"version": .*,/"version": $(VERSION),/'  _build/metadata.json;
+	sed -i 's/"version": .*,/"version": $(VERSION),/'  build/metadata.json;
 endif
 
-test: install-local
+test: install enable
 	env GNOME_SHELL_SLOWDOWN_FACTOR=2 \
 		MUTTER_DEBUG_DUMMY_MODE_SPECS=1920x1080 \
 		dbus-run-session -- gnome-shell --nested --wayland

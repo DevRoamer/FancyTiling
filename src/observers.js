@@ -17,27 +17,108 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import Meta from 'gi://Meta';
+import FtObject from './ftobject.js';
+import ZoneLayoutManager from './layout.js';
+import { ZoneSelector } from './selector.js';
+
 // #region DisplayObserver
 
-export class DisplayObserver {
+export class DisplayObserver extends FtObject {
     constructor(display) {
+        super();
         this._display = display;
-        this._init();
+        this._windowOberservers = [];
+        this._layoutManager = new ZoneLayoutManager(display);
+        this._initObserver();
     }
 
-    _init() {
-        this._windowCreatedHandler = this._display.connect("window-created", (display, win) => {
-            console.log("NEW WIN", win);
-        });
+    _initObserver() {
+        this._handleWindowCreated = this._handleWindowCreated.bind(this);
+        this._windowCreatedHandler = this._display.connect('window-created', this._handleWindowCreated);
+        this._handleObserverWindowDestroyed = this._handleObserverWindowDestroyed.bind(this);
+        this._handleObserverWindowDrag = this._handleObserverWindowDrag.bind(this);
+        this._handleZoneSelectorFinished = this._handleZoneSelectorFinished.bind(this);
+
+        this._layoutManager.loadLayouts();
     }
 
     destroy() {
+        this._windowOberservers.forEach((o) => this._removeWindowObserver(o));
         this._display.disconnect(this._windowCreatedHandler);
         this._display = null;
+        this._layoutManager.destroy();
+        this._layoutManager = null;
+        super.destroy();
+    }
+
+    _handleWindowCreated(display, window) {
+        this._createWindowObserver(window);
+    }
+
+    _handleObserverWindowDestroyed(observer) {
+        this._removeWindowObserver(observer);
+    }
+
+    _handleObserverWindowDrag(observer) {
+        if (!this._layoutManager.getActiveLayout() || this._zoneSelector) {
+            return;
+        }
+
+        this._zoneSelector = new ZoneSelector(this._layoutManager.getActiveLayout(), observer);
+        this._zoneSelector.connect('finished', this._handleZoneSelectorFinished);
+        this._zoneSelector.run();
+    }
+
+    _handleZoneSelectorFinished(selector) {
+        this._zoneSelector?.destory();
+        this._zoneSelector = null;
+    }
+
+    _createWindowObserver(win) {
+        let actor = this._findActorForWindowId(win.get_id());
+        if (!actor) {
+            logError(`could not find window actor for window id ${win.get_id()}`);
+            return;
+        }
+
+        let observer = new WindowObserver(win, actor);
+        this._windowOberservers.push({
+            windowId: win.get_id(),
+            observer: observer,
+            handlerDestroy: observer.connect('window-destroyed', this._handleObserverWindowDestroyed),
+            handlerDrag: observer.connect('window-drag', this._handleObserverWindowDrag),
+        });
+        log(`Created window observer for window (${win.get_id()})`);
+    }
+
+    _removeWindowObserver(observer) {
+        log(`Try to remove window observer for window (${observer.getWindowId()})`);
+
+        for (let i in this._windowOberservers) {
+            let info = this._windowOberservers[i];
+            if (info.windowId === observer.getWindowId()) {
+                info.observer.disconnect(info.handlerDestroy);
+                info.observer.disconnect(info.handlerDrag);
+                info.observer = null;
+                this._windowOberservers.splice(parseInt(i), 1);
+                log('success.');
+                return;
+            }
+        }
+
+        log(`No window observer found for window (${win.get_id()})`);
     }
 
     _findActorForWindowId(id) {
-       return null;
+        let actors = Meta.get_window_actors(this._display);
+        for (let actor of actors) {
+            if (actor.get_meta_window().get_id() === id) {
+                return actor;
+            }
+        }
+
+        return null;
     }
 }
 
@@ -45,10 +126,55 @@ export class DisplayObserver {
 
 // #region WindowObserver
 
-export class WindowObserver {
+export class WindowObserver extends FtObject {
     constructor(window, actor) {
+        super();
         this._window = window;
         this._actor = actor;
+        this._id = window.get_id();
+        this._initObserver();
+    }
+
+    getActor() {
+        return this._actor;
+    }
+    getWindow() {
+        return this._window;
+    }
+    getWindowId() {
+        return this._id;
+    }
+
+    destroy() {
+        this.__destroy(false);
+    }
+
+    _initObserver() {
+        this._handleActorDestroy = this._handleActorDestroy.bind(this);
+        this._handleWindowPosChanged = this._handleWindowPosChanged.bind(this);
+
+        this._handlerWindowPosChanged = this._window.connect('position-changed', this._handleWindowPosChanged);
+        this._handlerActorDestroy = this._actor.connect('destroy', this._handleActorDestroy);
+    }
+
+    _handleWindowPosChanged(args) {
+        this.emit('window-drag', this);
+    }
+
+    _handleActorDestroy(args) {
+        this.__destroy(true);
+    }
+
+    __destroy(emit) {
+        if (emit) {
+            this.emit('window-destroyed', this);
+        }
+        this._window?.disconnect(this._handlerWindowPosChanged);
+        this._window = null;
+        this._actor?.disconnect(this._handlerActorDestroy);
+        this._actor = null;
+        this._id = null;
+        super.destroy();
     }
 }
 
