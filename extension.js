@@ -44,7 +44,7 @@ export default class FancyTilingExtension extends Extension {
 }
 
 const Indicator = GObject.registerClass(
-    class IndicatorClass extends PanelMenuButton {
+    class extends PanelMenuButton {
         _panelIcon = null;
         _extension = null;
 
