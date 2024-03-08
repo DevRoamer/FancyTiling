@@ -43,7 +43,7 @@ disable:
 zip-file: build
 	cd build ; \
 	gnome-extensions pack -f \
-		--extra-source=./resource \
+		--extra-source=./resources \
 		--extra-source=./metadata.json \
 		--extra-source=./stylesheet.css \
 		--extra-source=./README.md \
@@ -90,3 +90,6 @@ test: install enable
 	env GNOME_SHELL_SLOWDOWN_FACTOR=2 \
 		MUTTER_DEBUG_DUMMY_MODE_SPECS=1920x1080 \
 		dbus-run-session -- gnome-shell --nested --wayland
+
+test-prefs: install
+	gnome-extensions prefs $(UUID)

@@ -5,6 +5,8 @@
 *.zip
 *.tar.gz
 *.rar
+*.pot
+**/LINGUAS
 
 #GSchema
 **/*.compiled

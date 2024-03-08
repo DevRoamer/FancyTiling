@@ -1,0 +1,59 @@
+#: prefs-general.ui:5 prefs-general.ui:10
+msgid "General"
+msgstr "General"
+
+#: prefs-general.ui:13
+msgid "Animate"
+msgstr "Animate"
+
+#: prefs-general.ui:14
+msgid "Use animations to move windows"
+msgstr "Use animations to move windows"
+
+#: prefs-general.ui:29
+msgid "Overlay"
+msgstr "Overlay"
+
+#: prefs-general.ui:33
+msgid "Color"
+msgstr "Color"
+
+#: prefs-general.ui:34
+msgid "Changes the color of the overlay."
+msgstr "Changes the color of the overlay."
+
+#: prefs-general.ui:51
+msgid "Opacity"
+msgstr "Opacity"
+
+#: prefs-general.ui:52
+msgid "The transparancy of the overlay."
+msgstr "The transparancy of the overlay."
+
+#: prefs-general.ui:70
+msgid "Highlight distance"
+msgstr "Highlight distance"
+
+#: prefs-general.ui:71
+msgid "Pointer distance in pixel before highlight zones"
+msgstr "Pointer distance in pixel before highlight zones"
+
+#: prefs-general.ui:91
+msgid "Layout"
+msgstr "Layout"
+
+#: prefs-general.ui:95
+msgid "Default"
+msgstr "Default"
+
+#: prefs-general.ui:96
+msgid "Select default layout"
+msgstr "Select default layout"
+
+#: prefs-general.ui:109
+msgid "Editor"
+msgstr "Editor"
+
+#: prefs-general.ui:115
+msgid "Open"
+msgstr "Open"
