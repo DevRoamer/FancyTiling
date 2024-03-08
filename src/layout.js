@@ -74,8 +74,10 @@ export default class ZoneLayoutManager extends FtObject {
         if (defaultLayout != null) {
             this._activeLayout = defaultLayout;
         } else if (defaultLayout == null && this._layouts.length > 0) {
-            this.activeLayout = this._layouts[0];
+            this._activeLayout = this._layouts[0];
         }
+
+        console.log(this.getActiveLayout());
     }
 
     addLayout(layout) {
@@ -134,7 +136,7 @@ class ZoneLayout extends FtObject {
     }
 
     getZoneRectangleAt(x, y) {
-        let rect = [Number.MAX_VALUE, Number.MAX_VALUE, Number.MIN_VALUE, Number.MIN_VALUE];
+        let rect = [Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, Number.MIN_SAFE_INTEGER];
         let mouseRect = new Rectangle(
             x - this._mergeDistance,
             y - this._mergeDistance,
@@ -142,7 +144,7 @@ class ZoneLayout extends FtObject {
             this._mergeDistance * 2
         );
         for (let zone of this._zones) {
-            if (zone.rectangle.intersects(mouseRect)) {
+            if (zone.getRectangle().intersects(mouseRect)) {
                 rect[0] = Math.min(rect[0], zone.getRectangle().getX());
                 rect[1] = Math.min(rect[1], zone.getRectangle().getY());
                 rect[2] = Math.max(rect[2], zone.getRectangle().getRight());

@@ -20,6 +20,7 @@
 import Meta from 'gi://Meta';
 import FtObject from './ftobject.js';
 import ZoneLayoutManager from './layout.js';
+import { ZoneSelector } from './selector.js';
 
 // #region DisplayObserver
 
@@ -37,6 +38,7 @@ export class DisplayObserver extends FtObject {
         this._windowCreatedHandler = this._display.connect('window-created', this._handleWindowCreated);
         this._handleObserverWindowDestroyed = this._handleObserverWindowDestroyed.bind(this);
         this._handleObserverWindowDrag = this._handleObserverWindowDrag.bind(this);
+        this._handleZoneSelectorFinished = this._handleZoneSelectorFinished.bind(this);
 
         this._layoutManager.loadLayouts();
     }
@@ -58,7 +60,20 @@ export class DisplayObserver extends FtObject {
         this._removeWindowObserver(observer);
     }
 
-    _handleObserverWindowDrag(observer) {}
+    _handleObserverWindowDrag(observer) {
+        if (!this._layoutManager.getActiveLayout() || this._zoneSelector) {
+            return;
+        }
+
+        this._zoneSelector = new ZoneSelector(this._layoutManager.getActiveLayout(), observer);
+        this._zoneSelector.connect('finished', this._handleZoneSelectorFinished);
+        this._zoneSelector.run();
+    }
+
+    _handleZoneSelectorFinished(selector) {
+        this._zoneSelector?.destory();
+        this._zoneSelector = null;
+    }
 
     _createWindowObserver(win) {
         let actor = this._findActorForWindowId(win.get_id());

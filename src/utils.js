@@ -29,17 +29,35 @@ export class Rectangle {
         this._bottom = y + height;
     }
 
-    getX() { return this._x; }
-    getY() { return this._y; }
-    getWidth() { return this._width; }
-    getHeight() { return this._height; }
+    getX() {
+        return this._x;
+    }
+    getY() {
+        return this._y;
+    }
+    getWidth() {
+        return this._width;
+    }
+    getHeight() {
+        return this._height;
+    }
 
-    getTop() { return this._x; }
-    getLeft() { return this._y; }
-    getRight() { return this._right; }
-    getBottom() { return this._bottom; }
+    getTop() {
+        return this._x;
+    }
+    getLeft() {
+        return this._y;
+    }
+    getRight() {
+        return this._right;
+    }
+    getBottom() {
+        return this._bottom;
+    }
 
-    isEmpty() { return this._width <= 0 || this._height <= 0; }
+    isEmpty() {
+        return this._width <= 0 || this._height <= 0;
+    }
 
     contains(x, y) {
         return this._x <= x && this._y <= y && this._right > x && this._bottom > y;
@@ -50,11 +68,15 @@ export class Rectangle {
      */
     intersects(other) {
         return (
-            this.contains(other.x, other.y) 
-            || this.contains(other.right, other.y) 
-            || this.contains(other.right, other.bottom) 
-            || this.contains(other.x, other.bottom)
+            this.contains(other.getX(), other.getY()) ||
+            this.contains(other.getRight(), other.getY()) ||
+            this.contains(other.getRight(), other.getBottom()) ||
+            this.contains(other.getX(), other.getBottom())
         );
+    }
+
+    toString() {
+        return `Rectangle[isEmpty: ${this.isEmpty}, x: ${this._x}, y: ${this._y}, width: ${this._width}, height: ${this._height}]`;
     }
 
     /*
@@ -74,7 +96,6 @@ export class Rectangle {
         return new Rectangle(left, top, right - left, bottom - top);
     }
 }
-
 
 export function getDisplayClientAreaRect(display) {
     let x1 = 0,
