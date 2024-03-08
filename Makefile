@@ -67,14 +67,14 @@ ifeq ($(INSTALLTYPE),system)
 	cp -r ./schemas/*gschema.* $(SHARE_PREFIX)/glib-2.0/schemas
 	cp -r ./_build/locale/* $(SHARE_PREFIX)/locale
 endif
-	# -rm -fR _build
+	-rm -fR _build
 	echo done
 
 zip-file: _build
 	cd _build ; \
 	zip -qr "$(UUID)$(FILESUFFIX).zip" .
 	mv _build/$(UUID)$(FILESUFFIX).zip ./
-	# -rm -fR _build
+	-rm -fR _build
 
 _build: all
 	-rm -fR ./_build
