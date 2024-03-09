@@ -3,12 +3,23 @@
 
 [Fancy Zones](https://learn.microsoft.com/en-us/windows/powertoys/fancyzones) clone for GNOME 45.
 
+## Features
+
+- [x] Multiple layouts
+- [x] Multiple zones
+- [x] Move window to zone by mouse drag
+- [x] Merge zones by mouse distance
+- [x] Overlay customization
+- [ ] Layout editor (WIP)
+- [ ] Different layout for multiple monitores  (WIP)
+- [ ] Keyboard shortcuts (WIP)
+
 ![Preview](./docs/preview.gif)
 
-### Usage
+## Usage
 At the moment the activation key is the Ctrl-key. **Start dragging** a window and press **Ctrl**, release mouse button while holding Ctrl will move the window in the selected zone.
 
-### Requierments
+## Requierments
 - git
 - make
 - gnome-shell-extension-tool
@@ -44,7 +55,7 @@ make disable
 
 5) Logout from the current GNOME session and login again for the changes to take effect.
 
-### Customize zones (only for early releases)
+## Customize zones (only for early releases)
 
 To customize layout in early releases you need to edit the [gschema file](./src/schemas/org.gnome.shell.extensions.ft.gschema.xml) or use [dconf](https://wiki.gnome.org/Projects/dconf) and set 
 ```
