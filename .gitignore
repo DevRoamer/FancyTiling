@@ -19,3 +19,6 @@ node_modules/
 **/.idea/
 **/_build/
 **/build/
+
+# Misc
+**/*.mp4
