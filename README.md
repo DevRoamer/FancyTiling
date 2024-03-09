@@ -13,6 +13,7 @@
 - [ ] Layout editor (WIP)
 - [ ] Different layout for multiple monitores  (WIP)
 - [ ] Keyboard shortcuts (WIP)
+- [ ] Restore window to last zone (WIP)
 
 ![Preview](./docs/preview.gif)
 
