@@ -71,7 +71,7 @@ The default layout config:
             "zones": {                
                 "1":[0,0,0.5,0.5],    /// zone name with 4 float values 
                 "2":[0.5,0,1,0.5],    /// (0-1 -> 0 = left/top, 1 = right/bottom)
-                "3":[0,0.5,0.5,1],    /// values are for [x, y, right, bottom]
+                "3":[0,0.5,0.5,1],    /// values are for [left, top, right, bottom]
                 "4":[0.5,0.5,1,1]
             }
         },
