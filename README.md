@@ -74,6 +74,15 @@ The default layout config:
                 "3":[0,0.5,0.5,1],    /// values are for [x, y, right, bottom]
                 "4":[0.5,0.5,1,1]
             }
+        },
+        "2-1-2": {
+            "zones": {
+                "LeftTop":     [0,0,0.3,0.5],
+                "LeftBottom":  [0,0.5,0.3,1],
+                "Center":      [0.3,0,0.7,1],
+                "RightTop":    [0.7,0,1,0.5],
+                "RightBottom": [0.7,0.5,1,1]
+            }
         }
     }
 }
