@@ -2,7 +2,6 @@
 ![GNOME](https://img.shields.io/badge/45-4A86CF?style=for-the-badge&logo=gnome&logoColor=white&label=GNOME)
 
 [Fancy Zones](https://learn.microsoft.com/en-us/windows/powertoys/fancyzones) clone for GNOME 45.
-_This extension is in a very early stage_
 
 ![Preview](./docs/preview.gif)
 
