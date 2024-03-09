@@ -1,4 +1,4 @@
-# <img src="./resources/fancy-tiling.svg" width="32" height="32"/> Fancy Tiling
+# <img src="./resources/fancy-tiling.svg" width="32" height="32"/> Fancy Tiling - GNOME Extension
 ![GNOME](https://img.shields.io/badge/45-4A86CF?style=for-the-badge&logo=gnome&logoColor=white&label=GNOME)
 
 [Fancy Zones](https://learn.microsoft.com/en-us/windows/powertoys/fancyzones) clone for GNOME 45.
