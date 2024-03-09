@@ -4,6 +4,8 @@
 [Fancy Zones](https://learn.microsoft.com/en-us/windows/powertoys/fancyzones) clone for GNOME 45.
 _This extension is in a very early stage_
 
+![Preview](./docs/preview.gif)
+
 ### Usage
 At the moment the activation key is the Ctrl-key. **Start dragging** a window and press **Ctrl**, release mouse button while holding Ctrl will move the window in the selected zone.
 
@@ -67,4 +69,3 @@ The default layout config:
 ```
 
 Compile and install after editing the gschema -> Logout and login.
-
