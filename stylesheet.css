@@ -2,3 +2,18 @@
     border: 1px;
     border-color: rgba(0, 0, 0, 80);
 }
+
+.ft-editor-zone {
+    border: 1px;
+    border-color: rgba(80,80,80,80);
+    align-self: center;
+    vertical-align: middle;
+    font-size: large;
+    font-weight: bold;
+    color: aliceblue;
+}
+
+.ft-editor-zone:hover {
+    border: 1px;
+    border-color: rgba(160,160,160,80);
+}

@@ -76,8 +76,6 @@ export default class ZoneLayoutManager extends FtObject {
         } else if (defaultLayout == null && this._layouts.length > 0) {
             this._activeLayout = this._layouts[0];
         }
-
-        console.log(this.getActiveLayout());
     }
 
     addLayout(layout) {
@@ -133,6 +131,9 @@ class ZoneLayout extends FtObject {
     }
     getZoneCount() {
         return this._zones.length;
+    }
+    getZones() {
+        return this._zones;
     }
 
     getZoneRectangleAt(x, y) {

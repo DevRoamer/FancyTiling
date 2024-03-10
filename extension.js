@@ -20,10 +20,11 @@
 import GObject from 'gi://GObject';
 import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
-import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
+import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 import { Button as PanelMenuButton } from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import { PopupMenuItem } from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import FancyTiling from './src/ft.js';
+import LayoutEditor from './src/editor/layout-editor.js';
 
 export default class FancyTilingExtension extends Extension {
     _indicator = null;
@@ -73,6 +74,13 @@ const Indicator = GObject.registerClass(
             });
 
             this.menu.addMenuItem(item);
+
+            let editorItem = new PopupMenuItem('Editor');
+            editorItem.connect('activate', () => {
+                new LayoutEditor(global.display);
+            });
+
+            this.menu.addMenuItem(editorItem);
         }
 
         destroy() {
