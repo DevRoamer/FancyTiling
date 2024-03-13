@@ -17,3 +17,8 @@
     border: 1px;
     border-color: rgba(160,160,160,80);
 }
+
+.ft-editor-zone:focus {
+    border: 1px;
+    border-color: rgba(255,0,0,180);
+}

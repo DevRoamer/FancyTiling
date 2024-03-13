@@ -55,6 +55,18 @@ export class Rectangle {
         return this._bottom;
     }
 
+    getCenterX() {
+        return this._width / 2 + this._x;
+    }
+
+    getCenterY() {
+        return this._height / 2 + this._y;
+    }
+
+    getCenter() {
+        return [this.getCenterX(), this.getCenterY()];
+    }
+
     isEmpty() {
         return this._width <= 0 || this._height <= 0;
     }

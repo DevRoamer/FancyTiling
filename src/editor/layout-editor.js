@@ -38,18 +38,45 @@ class EditorBin extends FtObject {
     constructor() {
         super();
         this._zoneRectangles = [];
+        this._splitters = [];
     }
 
     addRectangle(name, rect) {
         let zoneRect = new EditorRectangle(name, rect);
-        this._zoneRectangles.push(zoneRect);
-        global.stage.add_child(zoneRect);
+        let wrapper = {
+            zoneRect: zoneRect,
+            handlerFocusIn: zoneRect.connect('key-focus-in', (_) => this._zoneRectFocusIn(zoneRect)),
+            handlerFocusOut: zoneRect.connect('key-focus-out', (_) => this._zoneRectFocusOut(zoneRect)),
+        };
+        this._zoneRectangles.push(wrapper);
+        global.stage.add_child(wrapper.zoneRect);
     }
 
     destroy() {
-        this._zoneRectangles.forEach((z) => z.destroy());
+        this._destorySplitters();
+        this._zoneRectangles.forEach((z) => {
+            z.zoneRect.disconnect(z.handlerFocusIn);
+            z.zoneRect.disconnect(z.handlerFocusOut);
+            z.zoneRect.destroy();
+        });
         this._zoneRectangles = [];
         super.destroy();
+    }
+
+    _destorySplitters() {
+        this._splitters.forEach((s) => {
+            global.stage.remove_child(s);
+            s.destroy();
+        });
+        this._splitters = [];
+    }
+
+    _zoneRectFocusIn(zoneRect) {
+        console.log('IN', zoneRect.clutter_text.get_text());
+    }
+
+    _zoneRectFocusOut(zoneRect) {
+        console.log('OUT', zoneRect.clutter_text.get_text());
     }
 }
 
@@ -83,6 +110,45 @@ const EditorRectangle = GObject.registerClass(
             let col = this.get_background_color();
             col.alpha = this.get_hover() ? 150 : 65;
             this.set_background_color(col);
+        }
+
+        vfunc_button_press_event(event) {
+            this.grab_key_focus();
+        }
+    }
+);
+
+const SPLITTER_HOR = 0;
+const SPLITTER_VERT = 1;
+
+const Splitter = GObject.registerClass(
+    class SplitterClass extends St.Bin {
+        constructor(rect, orientation) {
+            super({
+                x: rect.getX(),
+                y: rect.getY(),
+                width: rect.getWidth(),
+                height: rect.getHeight(),
+                reactive: true,
+                canFocus: true,
+                trackHover: true,
+                backgroundColor: new Clutter.Color({
+                    red: 255,
+                    green: 255,
+                    blue: 255,
+                    alpha: 255,
+                }),
+            });
+
+            this._position = orientation == SPLITTER_HOR ? rect.getCenterY() : rect.getCenterX();
+        }
+
+        vfunc_button_press_event(event) {
+            console.log('PRESS');
+        }
+
+        vfunc_button_release_event(event) {
+            console.log('RELEASE');
         }
     }
 );

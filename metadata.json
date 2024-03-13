@@ -1,7 +1,7 @@
 {
   "name": "Fancy Tiling",
   "description": "FancyZones clone for GNOME",
-  "version": "0.0.2-js",
+  "version": "3",
   "uuid": "fancy-tiling@devroamer.zen",
   "author": "DevRoamer <d3vr0am3r@gmail.com>",
   "url": "https://github.com/DevRoamer/FancyTiling",
