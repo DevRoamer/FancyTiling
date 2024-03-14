@@ -3,7 +3,13 @@ import Clutter from 'gi://Clutter';
 import GObject from 'gi://GObject';
 import FtObject from '../ftobject.js';
 import ZoneLayoutManager from '../layout.js';
-import { getDisplayClientAreaRect } from '../utils.js';
+import { Rectangle, getDisplayClientAreaRect } from '../utils.js';
+
+const ALPHA_NORMAL = 100;
+const ALPHA_HOVER = 150;
+const SPLITTER_HOR = 0;
+const SPLITTER_VERT = 1;
+const SPLITTER_RECT_SIZE = 5;
 
 export default class LayoutEditor extends FtObject {
     constructor(display) {
@@ -71,6 +77,43 @@ class EditorBin extends FtObject {
         this._splitters = [];
     }
 
+    _createSplitters(zoneRect) {
+        this._destorySplitters();
+
+        let searchRect = new Rectangle(
+            zoneRect.get_x() - SPLITTER_RECT_SIZE,
+            zoneRect.get_y() - SPLITTER_RECT_SIZE,
+            zoneRect.get_width() + SPLITTER_RECT_SIZE * 2,
+            zoneRect.get_height() + SPLITTER_RECT_SIZE * 2
+        );
+        let intersectionZones = this._getIntersectionZones(searchRect);
+
+        let leftRects = intersectionZones.map(
+            (x) => x !== zoneRect && x.getRectangle().getCenterX() < searchRect.getCenterX()
+        );
+        let rightRects = intersectionZones.map(
+            (x) => x !== zoneRect && x.getRectangle().getCenterX() > searchRect.getCenterX()
+        );
+        let topRects = intersectionZones.map(
+            (x) => x !== zoneRect && x.getRectangle().getCenterY() < searchRect.getCenterY()
+        );
+        let bottomRects = intersectionZones.map(
+            (x) => x !== zoneRect && x.getRectangle().getCenterY() > searchRect.getCenterY()
+        );
+    }
+
+    _getIntersectionZones(rect) {
+        let resultSet = [];
+        this._zoneRectangles.forEach((wrapper) => {
+            let r = wrapper.zoneRect.getRectangle();
+            if (rect.intersects(r) || r.intersects(rect)) {
+                resultSet.push(wrapper.zoneRect);
+            }
+        });
+
+        return resultSet;
+    }
+
     _zoneRectFocusIn(zoneRect) {
         console.log('IN', zoneRect.clutter_text.get_text());
     }
@@ -88,16 +131,16 @@ const EditorRectangle = GObject.registerClass(
                 y: rectangle.getY(),
                 width: rectangle.getWidth(),
                 height: rectangle.getHeight(),
-                backgroundColor: new Clutter.Color({
-                    red: Math.random() * 100,
-                    green: Math.random() * 255,
-                    blue: Math.random() * 255,
-                    alpha: 65,
-                }),
                 reactive: true,
                 canFocus: true,
                 trackHover: true,
                 styleClass: 'ft-editor-zone',
+                backgroundColor: new Clutter.Color({
+                    red: Math.random() * 100,
+                    green: Math.random() * 255,
+                    blue: Math.random() * 100,
+                    alpha: ALPHA_NORMAL,
+                }),
             });
             this._rectangle = rectangle;
             this.clutter_text.set_text(`<span foreground="white" size="large"><b>${name}</b></span>`);
@@ -106,9 +149,13 @@ const EditorRectangle = GObject.registerClass(
             this.clutter_text.set_margin_top(8);
         }
 
+        getRectangle() {
+            return new Rectangle(this.get_x(), this.get_y(), this.get_width(), this.get_height());
+        }
+
         vfunc_style_changed() {
             let col = this.get_background_color();
-            col.alpha = this.get_hover() ? 150 : 65;
+            col.alpha = this.get_hover() ? ALPHA_HOVER : ALPHA_NORMAL;
             this.set_background_color(col);
         }
 
@@ -117,9 +164,6 @@ const EditorRectangle = GObject.registerClass(
         }
     }
 );
-
-const SPLITTER_HOR = 0;
-const SPLITTER_VERT = 1;
 
 const Splitter = GObject.registerClass(
     class SplitterClass extends St.Bin {
