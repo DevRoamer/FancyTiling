@@ -7,10 +7,14 @@ import { Rectangle, getDisplayClientAreaRect } from '../utils.js';
 
 const ALPHA_NORMAL = 100;
 const ALPHA_HOVER = 150;
+
 const SPLITTER_HOR = 0;
 const SPLITTER_VERT = 1;
-const SPLITTER_RECT_SIZE = 5;
+const SPLITTER_RECT_SIZE = 6;
 const SPLITTER_SIZE = 3;
+
+const SPLITTER_COL_NORMAL = new Clutter.Color({ red: 88, green: 88, blue: 88, alpha: 255 });
+const SPLITTER_COL_HOVER = new Clutter.Color({ red: 150, green: 200, blue: 255, alpha: 255 });
 
 export default class LayoutEditor extends FtObject {
     constructor(display) {
@@ -80,6 +84,9 @@ class EditorBin extends FtObject {
 
     _createSplitters(zoneRect) {
         this._destorySplitters();
+        const searchSize = 2;
+        const searchSize2 = searchSize * 2;
+
         let rect = zoneRect.getRectangle();
 
         let leftRects = [];
@@ -87,44 +94,57 @@ class EditorBin extends FtObject {
         let rightRects = [];
         let bottomRects = [];
 
+        // Top zones
         this._getIntersectionZones(
-            new Rectangle(rect.getX() + 1, rect.getY() - SPLITTER_RECT_SIZE, rect.getWidth() - 2, SPLITTER_RECT_SIZE)
+            new Rectangle(
+                rect.getX() + searchSize,
+                rect.getY() - SPLITTER_RECT_SIZE,
+                rect.getWidth() - searchSize2,
+                SPLITTER_RECT_SIZE
+            )
         ).forEach((z) => {
             if (z !== zoneRect && z.getRectangle().getCenterY() < rect.getCenterY()) {
                 topRects.push(z);
             }
         });
+        this._createHorizontalSplitters(zoneRect.getRectangle().getY(), topRects);
 
+        // Bottom zones
         this._getIntersectionZones(
-            new Rectangle(rect.getX() + 1, rect.getBottom(), rect.getWidth() - 2, SPLITTER_RECT_SIZE)
+            new Rectangle(rect.getX() + searchSize, rect.getBottom(), rect.getWidth() - searchSize2, SPLITTER_RECT_SIZE)
         ).forEach((z) => {
             if (z !== zoneRect && z.getRectangle().getCenterY() > rect.getCenterY()) {
                 bottomRects.push(z);
             }
         });
+        this._createHorizontalSplitters(zoneRect.getRectangle().getBottom(), bottomRects);
 
+        // Left zones
         this._getIntersectionZones(
-            new Rectangle(rect.getX() - SPLITTER_RECT_SIZE, rect.getY() + 1, SPLITTER_RECT_SIZE, rect.getHeight() - 2)
+            new Rectangle(
+                rect.getX() - SPLITTER_RECT_SIZE,
+                rect.getY() + searchSize,
+                SPLITTER_RECT_SIZE,
+                rect.getHeight() - searchSize2
+            )
         ).forEach((z) => {
             if (z !== zoneRect && z.getRectangle().getCenterX() < rect.getCenterX()) {
                 leftRects.push(z);
             }
         });
+        this._createVerticalSplitters(zoneRect.getRectangle().getX(), leftRects);
 
+        // Right zones
         this._getIntersectionZones(
-            new Rectangle(rect.getRight(), rect.getY() + 1, SPLITTER_RECT_SIZE, rect.getHeight() - 2)
+            new Rectangle(rect.getRight(), rect.getY() + searchSize, SPLITTER_RECT_SIZE, rect.getHeight() - searchSize2)
         ).forEach((z) => {
             if (z !== zoneRect && z.getRectangle().getCenterX() > rect.getCenterX()) {
                 rightRects.push(z);
             }
         });
-
-        this._createVerticalSplitters(zoneRect.getRectangle().getX(), leftRects);
         this._createVerticalSplitters(zoneRect.getRectangle().getRight(), rightRects);
 
-        this._createHorizontalSplitters(zoneRect.getRectangle().getY(), topRects);
-        this._createHorizontalSplitters(zoneRect.getRectangle().getBottom(), bottomRects);
-
+        // Add splitters to stage
         this._splitters.forEach((s) => global.stage.add_child(s));
     }
 
@@ -230,15 +250,14 @@ const Splitter = GObject.registerClass(
                 reactive: true,
                 canFocus: true,
                 trackHover: true,
-                backgroundColor: new Clutter.Color({
-                    red: 255,
-                    green: 255,
-                    blue: 255,
-                    alpha: 255,
-                }),
+                backgroundColor: SPLITTER_COL_NORMAL,
             });
 
             this._position = orientation == SPLITTER_HOR ? rect.getCenterY() : rect.getCenterX();
+        }
+
+        vfunc_style_changed() {
+            this.set_background_color(this.get_hover() ? SPLITTER_COL_HOVER : SPLITTER_COL_NORMAL);
         }
 
         vfunc_button_press_event(event) {
