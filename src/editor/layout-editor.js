@@ -10,6 +10,7 @@ const ALPHA_HOVER = 150;
 const SPLITTER_HOR = 0;
 const SPLITTER_VERT = 1;
 const SPLITTER_RECT_SIZE = 5;
+const SPLITTER_SIZE = 3;
 
 export default class LayoutEditor extends FtObject {
     constructor(display) {
@@ -79,26 +80,73 @@ class EditorBin extends FtObject {
 
     _createSplitters(zoneRect) {
         this._destorySplitters();
+        let rect = zoneRect.getRectangle();
 
-        let searchRect = new Rectangle(
-            zoneRect.get_x() - SPLITTER_RECT_SIZE,
-            zoneRect.get_y() - SPLITTER_RECT_SIZE,
-            zoneRect.get_width() + SPLITTER_RECT_SIZE * 2,
-            zoneRect.get_height() + SPLITTER_RECT_SIZE * 2
-        );
-        let intersectionZones = this._getIntersectionZones(searchRect);
+        let leftRects = [];
+        let topRects = [];
+        let rightRects = [];
+        let bottomRects = [];
 
-        let leftRects = intersectionZones.map(
-            (x) => x !== zoneRect && x.getRectangle().getCenterX() < searchRect.getCenterX()
+        this._getIntersectionZones(
+            new Rectangle(rect.getX() + 1, rect.getY() - SPLITTER_RECT_SIZE, rect.getWidth() - 2, SPLITTER_RECT_SIZE)
+        ).forEach((z) => {
+            if (z !== zoneRect && z.getRectangle().getCenterY() < rect.getCenterY()) {
+                topRects.push(z);
+            }
+        });
+
+        this._getIntersectionZones(
+            new Rectangle(rect.getX() + 1, rect.getBottom(), rect.getWidth() - 2, SPLITTER_RECT_SIZE)
+        ).forEach((z) => {
+            if (z !== zoneRect && z.getRectangle().getCenterY() > rect.getCenterY()) {
+                bottomRects.push(z);
+            }
+        });
+
+        this._getIntersectionZones(
+            new Rectangle(rect.getX() - SPLITTER_RECT_SIZE, rect.getY() + 1, SPLITTER_RECT_SIZE, rect.getHeight() - 2)
+        ).forEach((z) => {
+            if (z !== zoneRect && z.getRectangle().getCenterX() < rect.getCenterX()) {
+                leftRects.push(z);
+            }
+        });
+
+        this._getIntersectionZones(
+            new Rectangle(rect.getRight(), rect.getY() + 1, SPLITTER_RECT_SIZE, rect.getHeight() - 2)
+        ).forEach((z) => {
+            if (z !== zoneRect && z.getRectangle().getCenterX() > rect.getCenterX()) {
+                rightRects.push(z);
+            }
+        });
+
+        this._createVerticalSplitters(zoneRect.getRectangle().getX(), leftRects);
+        this._createVerticalSplitters(zoneRect.getRectangle().getRight(), rightRects);
+
+        this._createHorizontalSplitters(zoneRect.getRectangle().getY(), topRects);
+        this._createHorizontalSplitters(zoneRect.getRectangle().getBottom(), bottomRects);
+
+        this._splitters.forEach((s) => global.stage.add_child(s));
+    }
+
+    _createVerticalSplitters(x, zones) {
+        if (zones.length == 0) {
+            return;
+        }
+        let y = Math.min(...zones.map((r) => r.getRectangle().getY()));
+        let bottom = Math.max(...zones.map((r) => r.getRectangle().getBottom()));
+        this._splitters.push(
+            new Splitter(Rectangle.fromLTRB(x - SPLITTER_SIZE, y, x + SPLITTER_SIZE, bottom), SPLITTER_VERT)
         );
-        let rightRects = intersectionZones.map(
-            (x) => x !== zoneRect && x.getRectangle().getCenterX() > searchRect.getCenterX()
-        );
-        let topRects = intersectionZones.map(
-            (x) => x !== zoneRect && x.getRectangle().getCenterY() < searchRect.getCenterY()
-        );
-        let bottomRects = intersectionZones.map(
-            (x) => x !== zoneRect && x.getRectangle().getCenterY() > searchRect.getCenterY()
+    }
+
+    _createHorizontalSplitters(y, zones) {
+        if (zones.length == 0) {
+            return;
+        }
+        let x = Math.min(...zones.map((r) => r.getRectangle().getX()));
+        let right = Math.max(...zones.map((r) => r.getRectangle().getRight()));
+        this._splitters.push(
+            new Splitter(Rectangle.fromLTRB(x, y - SPLITTER_SIZE, right, y + SPLITTER_SIZE), SPLITTER_VERT)
         );
     }
 
@@ -116,6 +164,7 @@ class EditorBin extends FtObject {
 
     _zoneRectFocusIn(zoneRect) {
         console.log('IN', zoneRect.clutter_text.get_text());
+        this._createSplitters(zoneRect);
     }
 
     _zoneRectFocusOut(zoneRect) {
@@ -142,6 +191,7 @@ const EditorRectangle = GObject.registerClass(
                     alpha: ALPHA_NORMAL,
                 }),
             });
+            this._name = name;
             this._rectangle = rectangle;
             this.clutter_text.set_text(`<span foreground="white" size="large"><b>${name}</b></span>`);
             this.clutter_text.set_line_alignment(1);
@@ -150,7 +200,11 @@ const EditorRectangle = GObject.registerClass(
         }
 
         getRectangle() {
-            return new Rectangle(this.get_x(), this.get_y(), this.get_width(), this.get_height());
+            return this._rectangle;
+        }
+
+        getName() {
+            return this._name;
         }
 
         vfunc_style_changed() {
