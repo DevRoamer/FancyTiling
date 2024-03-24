@@ -1,0 +1,73 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
+"Language-Team: \n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.2.2\n"
+
+#: prefs-general.ui:5 prefs-general.ui:10
+msgid "General"
+msgstr "Algemeen"
+
+#: prefs-general.ui:13
+msgid "Animate"
+msgstr "Animaties tonen"
+
+#: prefs-general.ui:14
+msgid "Use animations to move windows"
+msgstr "Voorzie het verplaatsen van vensters van animaties"
+
+#: prefs-general.ui:29
+msgid "Overlay"
+msgstr "Bovenste laag"
+
+#: prefs-general.ui:33
+msgid "Color"
+msgstr "Kleur"
+
+#: prefs-general.ui:34
+msgid "Changes the color of the overlay."
+msgstr "Pas de kleur van de bovenste laag aan."
+
+#: prefs-general.ui:51
+msgid "Opacity"
+msgstr "Doorzichtigheid"
+
+#: prefs-general.ui:52
+msgid "The transparancy of the overlay."
+msgstr "De doorzichtigheid van de bovenste laag."
+
+#: prefs-general.ui:70
+msgid "Highlight distance"
+msgstr "Markeerafstand"
+
+#: prefs-general.ui:71
+msgid "Pointer distance in pixel before highlight zones"
+msgstr "De cursorafstand (in pixels) alvorens zones te markeren"
+
+#: prefs-general.ui:91
+msgid "Layout"
+msgstr "Indeling"
+
+#: prefs-general.ui:95
+msgid "Default"
+msgstr "Standaard"
+
+#: prefs-general.ui:96
+msgid "Select default layout"
+msgstr "Kies de standaardindeling"
+
+#: prefs-general.ui:109
+msgid "Editor"
+msgstr "Bewerker"
+
+#: prefs-general.ui:115
+msgid "Open"
+msgstr "Openen"
